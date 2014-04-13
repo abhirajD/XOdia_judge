@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-import sys,threading;
-import time,sys;
+import sys, threading, time, os
 from subprocess import Popen, PIPE, call
 
 argtemp=sys.argv;
@@ -15,12 +14,25 @@ ty=name2.split(".");
 atx=tx[0];
 aty=ty[0];
 
+# if atx=="3" or atx=="4" or aty=="3" or aty=="4":
+# 	print "I should exit"
+# 	exit();
+
 log_file=atx+"."+aty+".log";
 
 bot=1;
+bot1DQ=0
+bot2DQ=0
 count=0;
 exit=0;
 log=open(log_file,"w+")
+
+f = open("grid.txt","r+")
+f.seek(665);
+
+for i in range(0,324):
+	f.write(".");
+f.close();
 
 while exit == 0:
 
@@ -63,8 +75,8 @@ while exit == 0:
 			valuesIndex += 1
 			
 			
-	for i in range(0,18):
-		print xoboard[i]
+	#for i in range(0,18):
+	#	print xoboard[i]
 	#print wboard
 	# The file has been read and put into xoboard and wboard, the judge can now make changes on the 2D array directly
 
@@ -79,7 +91,7 @@ while exit == 0:
 		if p.poll() == None:
 			try:
 				p.kill()
-				print 'Error: process taking too long to complete--terminating'
+				#print 'Error: process taking too long to complete--terminating'
 				chk=1;
 				term=1
 			except:
@@ -95,10 +107,13 @@ while exit == 0:
 	ret = proc.communicate(s)
 	#print "Bot",bot,": ",ret;
 	
-	if (bot)==1:
-		print "Bot",atx,": ",ret;
-	elif (bot)==2:
-		print "Bot",aty,": ",ret;
+	# aTempVarJustToGetAwayWithTheIndentPart=0
+	# if (bot)==1:
+	# 	#print "Bot",atx,": ",ret;
+	# 	aTempVarJustToGetAwayWithTheIndentPart=1
+	# elif (bot)==2:
+	# 	aTempVarJustToGetAwayWithTheIndentPart=1
+	# 	#print "Bot",aty,": ",ret;
 	t.cancel();
 
 	try:
@@ -124,16 +139,23 @@ while exit == 0:
 	# 	print "Valid1"
 	# else:
 	# 	print "Invalid"
+
 	# 	chk=1
 
 
 
 	#Check2: Coordinates inside grid
-	if x < N and y<N:
-		print 'Valid1'
+	temp=0
+	if x<N and y<N and x>=0 and y>=0:
+		#print 'Valid1'
+		temp=1
 	else:
-		print "Invalid1"
+		#print "Invalid1"
 		chk=1
+		if bot==1:
+			bot1DQ=1
+		elif bot==2:
+			bot2DQ=1
 
 	# if x in range(0,N):
 	# 	x=x-1
@@ -142,14 +164,22 @@ while exit == 0:
 	# 	y=y-1
 	# 	print y
 
+	#Delete "a.out"
+	os.remove("a.out")
 
 	#Check3: No overlapping
-	if xoboard[x][y] == 'X' or xoboard[x][y] == 'O':
-		print "Invalid2"
-		chk=1
+	temp=0
+	if x < N and y<N and x>=0 and y>=0:
+		if xoboard[x][y] == 'X' or xoboard[x][y] == 'O':
+			#print "Invalid2"
+			chk=1
+			if bot==1:
+				bot1DQ=1
+			elif bot==2:
+				bot2DQ=1
 	else:
-		print "Valid2"
-
+		#print "Valid2"
+		temp=1
 
 	if chk == 0:
 		print "Validation Successful"
@@ -164,7 +194,7 @@ while exit == 0:
 			if y+1<N and xoboard[x][y+1] !='X' and xoboard[x][y+1]!='O': xoboard[x][y+1]="x"
 			if x-1>=0 and y+1<N and xoboard[x-1][y+1] !='X' and xoboard[x-1][y+1]!='O': xoboard[x-1][y+1]="x"
 			if y-1>=0 and xoboard[x][y-1] !='X' and xoboard[x][y-1]!='O': xoboard[x][y-1]="x"
-			for i in range(0,N):
+			for i in range(0,N):	
 				for j in range(0,N):
 					if xoboard[i][j]=='o':
 						xoboard[i][j]='O'
@@ -186,10 +216,9 @@ while exit == 0:
 					if xoboard[i][j]=='x':
 						xoboard[i][j]='X'
 	elif chk==1:
-		print "Bot Dismissed"
-		if bot==1:
+		if bot==1 and bot1DQ==0:
 			log.write('X:'+str(x).zfill(2)+" "+str(y).zfill(2)+'\n')
-		elif bot==0:
+		elif bot==0 and bot2DQ==0:
 			log.write('O:'+str(x).zfill(2)+" "+str(y).zfill(2)+'\n')
 
 	#writing to grid.txt
@@ -250,11 +279,16 @@ for i in range(0,N):
 	for j in range(0,N):
 		if xoboard[i][j]=='O':
 			Ocount += wboard[i][j]
-log.write("*Game Over");
 
+log.write("*Game Over");
+if bot1DQ==1:
+	Xcount=0
+elif bot2DQ==1:
+	Ocount=0
 log.write('\nX:'+str(Xcount).zfill(4)+'\nO:'+str(Ocount).zfill(4))
-print " X conquered: ",Xcount
-print " O conquered: ",Ocount
+
+#print " X conquered: ",Xcount
+#print " O conquered: ",Ocount
 
 
 f = open("grid.txt","r+")
