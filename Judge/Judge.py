@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import sys, threading, time, os
+import sys, threading, time, os, resource
 from subprocess import Popen, PIPE, call
 
 argtemp=sys.argv;
@@ -13,10 +13,6 @@ ty=name2.split(".");
 
 atx=tx[0];
 aty=ty[0];
-
-# if atx=="3" or atx=="4" or aty=="3" or aty=="4":
-# 	print "I should exit"
-# 	exit();
 
 log_file=atx+"."+aty+".log";
 
@@ -33,6 +29,18 @@ f.seek(665);
 for i in range(0,324):
 	f.write(".");
 f.close();
+
+#LIMIT RESOURCES TO CHILD.
+soft , hard = resource.getrlimit(resource.RLIMIT_STACK)
+new_soft = 1024*1024*1024;												#LIMIT=1GB
+resource.setrlimit(resource.RLIMIT_STACK,(new_soft,hard))
+
+try:
+	pass
+except ValueError:
+	ret_flag = 5
+	print ret_flag
+	quit()
 
 while exit == 0:
 
@@ -57,8 +65,7 @@ while exit == 0:
 	v = s
 	
 	values = v.split()
-	#print s
-	#print values
+
 	# valuesIndex would run through the array values (There might be a more elegant way to put values into a 2D array from a single array)
 	valuesIndex = 0 
 
@@ -75,9 +82,6 @@ while exit == 0:
 			valuesIndex += 1
 			
 			
-	#for i in range(0,18):
-	#	print xoboard[i]
-	#print wboard
 	# The file has been read and put into xoboard and wboard, the judge can now make changes on the 2D array directly
 
 	if (bot)==1:
@@ -91,7 +95,7 @@ while exit == 0:
 		if p.poll() == None:
 			try:
 				p.kill()
-				#print 'Error: process taking too long to complete--terminating'
+				print ':TLE: Process taking too long to complete--terminating'
 				chk=1;
 				term=1
 			except:
@@ -105,7 +109,6 @@ while exit == 0:
 	t = threading.Timer( 2.0, timeout, [proc] )
 	t.start();
 	ret = proc.communicate(s)
-	#print "Bot",bot,": ",ret;
 	
 	# aTempVarJustToGetAwayWithTheIndentPart=0
 	# if (bot)==1:
