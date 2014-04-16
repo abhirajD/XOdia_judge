@@ -101,28 +101,25 @@ while exit == 0:
 			except:
 				pass
 
-	#PIPING with executiable of Bot.c i.e a.out 
-	proc = Popen("./a.out",	 stdin=PIPE,stdout=PIPE,stderr=PIPE ,shell= True);
-	# Making the 2D 18x18 xoboard and wboard
-	# Sending the grid to the bot
+	def execute():
+		#PIPING with executiable of Bot.c i.e a.out 
+		proc = Popen("./a.out",	 stdin=PIPE,stdout=PIPE,stderr=PIPE ,shell= True);
+		# Making the 2D 18x18 xoboard and wboard
+		# Sending the grid to the bot
 
-	t = threading.Timer( 2.0, timeout, [proc] )
-	t.start();
-	ret = proc.communicate(s)
-	
-	# aTempVarJustToGetAwayWithTheIndentPart=0
-	# if (bot)==1:
-	# 	#print "Bot",atx,": ",ret;
-	# 	aTempVarJustToGetAwayWithTheIndentPart=1
-	# elif (bot)==2:
-	# 	aTempVarJustToGetAwayWithTheIndentPart=1
-	# 	#print "Bot",aty,": ",ret;
-	t.cancel();
+		t = threading.Timer( 2.0, timeout, [proc] )
+		t.start();
+		ret = proc.communicate(s)
 
-	try:
-		proc.kill();
-	except OSError:
-		pass
+		t.cancel();
+		try:
+			proc.kill();
+		except OSError:
+			pass
+
+		return ret
+
+	ret = execute()
 
 	#ret=str(ret)
 	move = ret[0]
@@ -144,7 +141,6 @@ while exit == 0:
 	# 	print "Invalid"
 
 	# 	chk=1
-
 
 
 	#Check2: Coordinates inside grid
